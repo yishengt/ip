@@ -60,6 +60,17 @@ public class Tyrone {
                 continue;
             }
 
+            if (input.split(" ")[0].equalsIgnoreCase("delete")) {
+
+                if (input.split(" ").length != 2){
+                    throw new TyroneException(AsciiArt.getQuestionMark());
+                }
+
+                String deleteIndex = input.split(" ")[1];
+                tasks.remove(Integer.parseInt(deleteIndex) - 1);
+                continue;
+            }
+
 
             if (input.equalsIgnoreCase("list")) {
                 for (int i = 0; i < tasks.size(); i++) {
