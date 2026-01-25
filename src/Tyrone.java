@@ -5,35 +5,15 @@ import java.io.InputStreamReader;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 
 public class Tyrone {
     public static void main(String[] args) throws Exception {
-        String art =
-                "      _____                _____                    _____                   _______                   _____                    _____          \n" +
-                        "     /\\\\    \\\\              |\\\\    \\\\                  /\\\\    \\\\                 /::\\\\    \\\\                 /\\\\    \\\\                  /\\\\    \\\\         \n" +
-                        "    /::\\\\    \\\\             |:\\\\____\\\\                /::\\\\    \\\\               /::::\\\\    \\\\               /::\\\\____\\\\                /::\\\\    \\\\        \n" +
-                        "    \\\\:::\\\\    \\\\            |::|   |               /::::\\\\    \\\\             /::::::\\\\    \\\\             /::::|   |               /::::\\\\    \\\\       \n" +
-                        "     \\\\:::\\\\    \\\\           |::|   |              /::::::\\\\    \\\\           /::::::::\\\\    \\\\           /:::::|   |              /::::::\\\\    \\\\      \n" +
-                        "      \\\\:::\\\\    \\\\          |::|   |             /:::/\\\\:::\\\\    \\\\         /:::/~~\\\\:::\\\\    \\\\         /::::::|   |             /:::/\\\\:::\\\\    \\\\     \n" +
-                        "       \\\\:::\\\\    \\\\         |::|   |            /:::/__\\\\:::\\\\    \\\\       /:::/    \\\\:::\\\\    \\\\       /:::/|::|   |            /:::/__\\\\:::\\\\    \\\\    \n" +
-                        "       /::::\\\\    \\\\        |::|   |           /::::\\\\   \\\\:::\\\\    \\\\     /:::/    / \\\\:::\\\\    \\\\     /:::/ |::|   |           /::::\\\\   \\\\:::\\\\    \\\\   \n" +
-                        "      /::::::\\\\    \\\\       |::|___|______    /::::::\\\\   \\\\:::\\\\    \\\\   /:::/____/   \\\\:::\\\\____\\\\   /:::/  |::|   | _____    /::::::\\\\   \\\\:::\\\\    \\\\  \n" +
-                        "     /:::/\\\\:::\\\\    \\\\      /::::::::\\\\    \\\\  /:::/\\\\:::\\\\   \\\\:::\\\\____\\\\ |:::|    |     |:::|    | /:::/   |::|   |/\\\\    \\\\  /:::/\\\\:::\\\\   \\\\:::\\\\    \\\\ \n" +
-                        "    /:::/  \\\\:::\\\\____\\\\    /::::::::::\\\\____\\\\/:::/  \\\\:::\\\\   \\\\:::|    ||:::|____|     |:::|    |/:: /    |::|   /::\\\\____\\\\/:::/__\\\\:::\\\\   \\\\:::\\\\____\\\\\n" +
-                        "   /:::/    \\\\::/    /   /:::/~~~~/~~      \\\\::/   |::::\\\\  /:::|____| \\\\:::\\\\    \\\\   /:::/    / \\\\::/    /|::|  /:::/    /\\\\:::\\\\   \\\\:::\\\\   \\\\::/    /\n" +
-                        "  /:::/    / \\\\/____/   /:::/    /          \\\\/____|:::::\\\\/:::/    /   \\\\:::\\\\    \\\\ /:::/    /   \\\\/____/ |::| /:::/    /  \\\\:::\\\\   \\\\:::\\\\   \\\\/____/ \n" +
-                        " /:::/    /           /:::/    /                 |:::::::::/    /     \\\\:::\\\\    /:::/    /            |::|/:::/    /    \\\\:::\\\\   \\\\:::\\\\    \\\\     \n" +
-                        "/:::/    /           /:::/    /                  |::|\\\\::::/    /       \\\\:::\\\\__/:::/    /             |::::::/    /      \\\\:::\\\\   \\\\:::\\\\____\\\\    \n" +
-                        "\\\\::/    /            \\\\::/    /                   |::| \\\\::/____/         \\\\::::::::/    /              |:::::/    /        \\\\:::\\\\   \\\\::/    /    \n" +
-                        " \\\\/____/              \\\\/____/                    |::|  ~|                \\\\::::::/    /               |::::/    /          \\\\:::\\\\   \\\\/____/     \n" +
-                        "                                                 |::|   |                 \\\\::::/    /                /:::/    /            \\\\:::\\\\    \\\\         \n" +
-                        "                                                 \\\\::|   |                  \\\\::/____/                /:::/    /              \\\\:::\\\\____\\\\        \n" +
-                        "                                                  \\\\:|   |                   ~~                      \\\\::/    /                \\\\::/    /        \n" +
-                        "                                                   \\\\|___|                                            \\\\/____/                  \\\\/____/         \n";
 
-        System.out.println(art);
-
-
+        System.out.println(AsciiArt.getArt());
         String banner =
                 " Hello! I'm Tyrone\n" +
                         " What can I do for you?\n";
@@ -44,8 +24,13 @@ public class Tyrone {
 
         String input = "";
 
+
+
         while (!input.equalsIgnoreCase("bye")) {
             input = sc.nextLine().trim();
+            if(input.isEmpty()){
+                continue;
+            }
 
             if (input.equalsIgnoreCase("bye")) {
                 System.out.println("Bye. Hope to see you again soon!");
@@ -84,31 +69,39 @@ public class Tyrone {
             }
 
             String[] parts = input.split(" ");
-            if(parts.length == 1){
-                throw new TyroneException("Bruh " + parts[0] + " what??");
-            }
+
             if (parts[0].equalsIgnoreCase("todo")) {
+                if(parts.length == 1){
+                    throw new TyroneException("Bruh " + parts[0] + " what??");
+                }
                 Todo item = new Todo(parts[1]);
                 tasks.add(item);
                 System.out.println("Got it. I've added this task:");
                 System.out.println(item.toString());
                 System.out.println("Now you have " + tasks.size() + " tasks in the list");
-
                 continue;
             }
 
             if (parts[0].equalsIgnoreCase("deadline")) {
+                if(parts.length == 1){
+                    throw new TyroneException("Bruh " + parts[0] + " what??");
+                }
                 String[] d = parts[1].split("/by", 2);
+                if (!isValidDate(parts[parts.length - 1])){
+                    throw new TyroneException(AsciiArt.getQuestionMark());
+                }
                 Deadline itemDeadLine = new Deadline(d[0].trim(), d[1].trim());
                 System.out.println("Got it. I've added this task:");
                 tasks.add(itemDeadLine);
                 System.out.println(itemDeadLine.toString());
                 System.out.println("Now you have " + tasks.size() + " tasks in the list");
-
                 continue;
             }
 
             if (parts[0].equalsIgnoreCase("event")) {
+                if(parts.length == 1){
+                    throw new TyroneException("Bruh " + parts[0] + " what??");
+                }
                 String[] e = parts[1].split("/at", 2);
                 Event itemEvent = new Event(e[0].trim(), e[1].trim());
                 System.out.println("Got it. I've added this task:");
@@ -116,14 +109,26 @@ public class Tyrone {
                 System.out.println(itemEvent.toString());
                 System.out.println("Now you have " + tasks.size() + " tasks in the list");
 
-                continue;
             } else {
-                throw new TyroneException("I dunno this command bro\n");
+                throw new TyroneException(AsciiArt.getDefeatedFace());
             }
 
         }
 
     }
+
+    public static boolean isValidDate(String input) {
+        DateTimeFormatter formatter =
+                DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        try {
+            LocalDate.parse(input, formatter);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
+
 
     public static Integer extractIndex(String input) {
 
