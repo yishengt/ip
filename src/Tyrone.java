@@ -111,7 +111,6 @@ public class Tyrone {
                     continue;
                 }
 
-                // ---------- DEADLINE ----------
                 if (parts[0].equalsIgnoreCase("deadline")) {
 
                     if (parts.length == 1) {
@@ -119,6 +118,7 @@ public class Tyrone {
                     }
 
                     String[] d = parts[1].split("/by", 2);
+                    LocalDate d1 = LocalDate.parse(d[1]);
 
                     if (d.length != 2 || !isValidDate(d[1].trim())) {
                         throw new TyroneException(AsciiArt.getQuestionMark());
