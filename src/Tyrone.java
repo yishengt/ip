@@ -1,13 +1,12 @@
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.nio.file.*;
 
 
 public class Tyrone {
@@ -24,106 +23,148 @@ public class Tyrone {
 
         String input = "";
 
-
-
         while (!input.equalsIgnoreCase("bye")) {
+
             input = sc.nextLine().trim();
-            if(input.isEmpty()){
+
+            if (input.isEmpty()) {
                 continue;
             }
 
-            if (input.equalsIgnoreCase("bye")) {
-                System.out.println("Bye. Hope to see you again soon!");
-                break;
-            }
+            try {
 
-            Integer idx = extractIndex(input.toLowerCase());
+                if (input.equalsIgnoreCase("bye")) {
+                    System.out.println("Bye. Hope to see you again soon!");
+                    break;
+                }
 
-            if (idx != -1) {
+                Integer idx = extractIndex(input.toLowerCase());
 
-                if (idx < 1 || idx > tasks.size()) {
-                    System.out.println("Invalid task number.");
+                if (idx != -1) {
+
+                    if (idx < 1 || idx > tasks.size()) {
+                        throw new TyroneException("Invalid task number.");
+                    }
+
+                    Task t = tasks.get(idx - 1);
+
+                    if (input.startsWith("mark")) {
+                        t.mark();
+                        System.out.println("Nice! I've marked this task as done:");
+                    } else {
+                        t.unmark();
+                        System.out.println("OK, I've marked this task as not done yet:");
+                    }
+
+                    System.out.println(t);
                     continue;
                 }
 
-                Task t = tasks.get(idx - 1);
+                String[] words = input.split(" ", 2);
 
-                if (input.startsWith("mark")) {
-                    t.mark();
-                    System.out.println("Nice! I've marked this task as done:");
-                } else {
-                    t.unmark();
-                    System.out.println("OK, I've marked this task as not done yet:");
+                if (words[0].equalsIgnoreCase("delete")) {
+
+                    if (words.length != 2) {
+                        throw new TyroneException(AsciiArt.getQuestionMark());
+                    }
+
+                    int deleteIndex;
+
+                    try {
+                        deleteIndex = Integer.parseInt(words[1]);
+                    } catch (NumberFormatException e) {
+                        throw new TyroneException("Delete requires a number.");
+                    }
+
+                    if (deleteIndex < 1 || deleteIndex > tasks.size()) {
+                        throw new TyroneException("Task number out of range.");
+                    }
+
+                    tasks.remove(deleteIndex - 1);
+                    System.out.println("Deleted task " + deleteIndex);
+                    save(tasks);
+                    continue;
                 }
 
-                System.out.println(t);
-                continue;
-            }
-
-            if (input.split(" ")[0].equalsIgnoreCase("delete")) {
-
-                if (input.split(" ").length != 2){
-                    throw new TyroneException(AsciiArt.getQuestionMark());
+                if (input.equalsIgnoreCase("list")) {
+                    for (int i = 0; i < tasks.size(); i++) {
+                        System.out.println((i + 1) + ". " + tasks.get(i));
+                    }
+                    continue;
                 }
 
-                String deleteIndex = input.split(" ")[1];
-                tasks.remove(Integer.parseInt(deleteIndex) - 1);
-                continue;
-            }
+                String[] parts = input.split(" ", 2);
 
+                if (parts[0].equalsIgnoreCase("todo")) {
 
-            if (input.equalsIgnoreCase("list")) {
-                for (int i = 0; i < tasks.size(); i++) {
-                    System.out.println((i + 1) + ". " + tasks.get(i));
+                    if (parts.length == 1) {
+                        throw new TyroneException("Bruh todo what??");
+                    }
+
+                    Todo item = new Todo(parts[1]);
+                    tasks.add(item);
+
+                    System.out.println("Got it. I've added this task:");
+                    System.out.println(item);
+                    System.out.println("Now you have " + tasks.size() + " tasks in the list");
+                    save(tasks);
+                    continue;
                 }
-                continue;
-            }
 
-            String[] parts = input.split(" ");
+                // ---------- DEADLINE ----------
+                if (parts[0].equalsIgnoreCase("deadline")) {
 
-            if (parts[0].equalsIgnoreCase("todo")) {
-                if(parts.length == 1){
-                    throw new TyroneException("Bruh " + parts[0] + " what??");
+                    if (parts.length == 1) {
+                        throw new TyroneException("Bruh deadline what??");
+                    }
+
+                    String[] d = parts[1].split("/by", 2);
+
+                    if (d.length != 2 || !isValidDate(d[1].trim())) {
+                        throw new TyroneException(AsciiArt.getQuestionMark());
+                    }
+
+                    Deadline itemDeadLine =
+                            new Deadline(d[0].trim(), d[1].trim());
+
+                    tasks.add(itemDeadLine);
+
+                    System.out.println("Got it. I've added this task:");
+                    System.out.println(itemDeadLine);
+                    System.out.println("Now you have " + tasks.size() + " tasks in the list");
+                    save(tasks);
+                    continue;
                 }
-                Todo item = new Todo(parts[1]);
-                tasks.add(item);
-                System.out.println("Got it. I've added this task:");
-                System.out.println(item.toString());
-                System.out.println("Now you have " + tasks.size() + " tasks in the list");
-                continue;
-            }
 
-            if (parts[0].equalsIgnoreCase("deadline")) {
-                if(parts.length == 1){
-                    throw new TyroneException("Bruh " + parts[0] + " what??");
-                }
-                String[] d = parts[1].split("/by", 2);
-                if (!isValidDate(parts[parts.length - 1])){
-                    throw new TyroneException(AsciiArt.getQuestionMark());
-                }
-                Deadline itemDeadLine = new Deadline(d[0].trim(), d[1].trim());
-                System.out.println("Got it. I've added this task:");
-                tasks.add(itemDeadLine);
-                System.out.println(itemDeadLine.toString());
-                System.out.println("Now you have " + tasks.size() + " tasks in the list");
-                continue;
-            }
+                if (parts[0].equalsIgnoreCase("event")) {
 
-            if (parts[0].equalsIgnoreCase("event")) {
-                if(parts.length == 1){
-                    throw new TyroneException("Bruh " + parts[0] + " what??");
-                }
-                String[] e = parts[1].split("/at", 2);
-                Event itemEvent = new Event(e[0].trim(), e[1].trim());
-                System.out.println("Got it. I've added this task:");
-                tasks.add(itemEvent);
-                System.out.println(itemEvent.toString());
-                System.out.println("Now you have " + tasks.size() + " tasks in the list");
+                    if (parts.length == 1) {
+                        throw new TyroneException("Bruh event what??");
+                    }
 
-            } else {
+                    String[] e = parts[1].split("/at", 2);
+
+                    if (e.length != 2) {
+                        throw new TyroneException(AsciiArt.getQuestionMark());
+                    }
+
+                    Event itemEvent =
+                            new Event(e[0].trim(), e[1].trim());
+
+                    tasks.add(itemEvent);
+
+                    System.out.println("Got it. I've added this task:");
+                    System.out.println(itemEvent);
+                    System.out.println("Now you have " + tasks.size() + " tasks in the list");
+                    save(tasks);
+                    continue;
+                }
+
                 throw new TyroneException(AsciiArt.getDefeatedFace());
-            }
 
+            } catch (TyroneException e) {
+                System.out.println(e.getMessage());
+            }
         }
 
     }
@@ -151,6 +192,22 @@ public class Tyrone {
         }
 
         return -1;
+    }
+
+    public static void save(ArrayList<Task> arr) throws IOException {
+        try {
+            FileWriter writer = new FileWriter("data/tyrone.txt");
+
+            for(Task a : arr) {
+                writer.write(a.toString());
+                writer.write("\n");
+            }
+
+            writer.close();
+
+        } catch (Exception e){
+            System.out.print(e);
+        }
     }
 
 }
