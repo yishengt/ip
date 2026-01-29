@@ -16,7 +16,7 @@ dependencies {
 }
 
 application {
-    mainClass.set('your.package.MainClass')  // Change this!
+    mainClass = 'Tyrone'
 }
 
 test {

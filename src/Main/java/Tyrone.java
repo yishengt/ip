@@ -1,32 +1,35 @@
 
 import java.io.*;
-import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.nio.file.*;
 
 
 public class Tyrone {
-    public static void main(String[] args) throws Exception {
 
-        System.out.println(AsciiArt.getArt());
-        String banner =
-                " Hello! I'm Tyrone\n" +
-                        " What can I do for you?\n";
+    private Storage storage;
+    private TaskList tasks;
+    private Parser parser;
+    private Ui ui = new Ui();
 
-        System.out.println(banner);
-        Scanner sc = new Scanner(System.in);
-        ArrayList<Task> tasks = new ArrayList<>();
+    public Tyrone(String filePath) {
+        ui = new Ui();
+        Parser parser = new Parser();
+        storage = new Storage("data/tyrone.txt");
+        storage.load();
 
+        tasks = new TaskList();
+    }
+
+    public void run(){
+        ui.showWelcome();
         String input = "";
 
         while (!input.equalsIgnoreCase("bye")) {
 
-            input = sc.nextLine().trim();
-
+            input = ui.readInputs();
             if (input.isEmpty()) {
                 continue;
             }
@@ -34,35 +37,14 @@ public class Tyrone {
             try {
 
                 if (input.equalsIgnoreCase("bye")) {
-                    System.out.println("Bye. Hope to see you again soon!");
+                    ui.showGoodBye();
                     break;
                 }
 
-                Integer idx = extractIndex(input.toLowerCase());
+                String[] words = Parser.parse(input);
+                String command = words[0].toLowerCase();
 
-                if (idx != -1) {
-
-                    if (idx < 1 || idx > tasks.size()) {
-                        throw new TyroneException("Invalid task number.");
-                    }
-
-                    Task t = tasks.get(idx - 1);
-
-                    if (input.startsWith("mark")) {
-                        t.mark();
-                        System.out.println("Nice! I've marked this task as done:");
-                    } else {
-                        t.unmark();
-                        System.out.println("OK, I've marked this task as not done yet:");
-                    }
-
-                    System.out.println(t);
-                    continue;
-                }
-
-                String[] words = input.split(" ", 2);
-
-                if (words[0].equalsIgnoreCase("delete")) {
+                if (command.equalsIgnoreCase("delete")) {
 
                     if (words.length != 2) {
                         throw new TyroneException(AsciiArt.getQuestionMark());
@@ -81,8 +63,13 @@ public class Tyrone {
                     }
 
                     tasks.remove(deleteIndex - 1);
-                    System.out.println("Deleted task " + deleteIndex);
-                    save(tasks);
+                        ui.showTaskDeleted(deleteIndex);
+
+                    try{
+                        storage.save(tasks);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     continue;
                 }
 
@@ -103,11 +90,13 @@ public class Tyrone {
 
                     Todo item = new Todo(parts[1]);
                     tasks.add(item);
+                    ui.showTaskAdded(tasks, item);
 
-                    System.out.println("Got it. I've added this task:");
-                    System.out.println(item);
-                    System.out.println("Now you have " + tasks.size() + " tasks in the list");
-                    save(tasks);
+                    try{
+                        Storage.save(tasks);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     continue;
                 }
 
@@ -128,11 +117,13 @@ public class Tyrone {
                             new Deadline(d[0].trim(), d[1].trim());
 
                     tasks.add(itemDeadLine);
+                    ui.showTaskAdded(tasks, itemDeadLine);
 
-                    System.out.println("Got it. I've added this task:");
-                    System.out.println(itemDeadLine);
-                    System.out.println("Now you have " + tasks.size() + " tasks in the list");
-                    save(tasks);
+                    try{
+                        Storage.save(tasks);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     continue;
                 }
 
@@ -142,21 +133,23 @@ public class Tyrone {
                         throw new TyroneException("Bruh event what??");
                     }
 
-                    String[] e = parts[1].split("/at", 2);
+                    String[] splits = parts[1].split("/at", 2);
 
-                    if (e.length != 2) {
+                    if (splits.length != 2) {
                         throw new TyroneException(AsciiArt.getQuestionMark());
                     }
 
                     Event itemEvent =
-                            new Event(e[0].trim(), e[1].trim());
+                            new Event(splits[0].trim(), splits[1].trim());
 
                     tasks.add(itemEvent);
+                    ui.showTaskAdded(tasks, itemEvent);
 
-                    System.out.println("Got it. I've added this task:");
-                    System.out.println(itemEvent);
-                    System.out.println("Now you have " + tasks.size() + " tasks in the list");
-                    save(tasks);
+                    try{
+                        Storage.save(tasks);
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                     continue;
                 }
 
@@ -167,6 +160,9 @@ public class Tyrone {
             }
         }
 
+    }
+    public static void main(String[] args){
+        new Tyrone("data/tyrone.txt").run();
     }
 
     public static boolean isValidDate(String input) {
@@ -193,21 +189,4 @@ public class Tyrone {
 
         return -1;
     }
-
-    public static void save(ArrayList<Task> arr) throws IOException {
-        try {
-            FileWriter writer = new FileWriter("data/tyrone.txt");
-
-            for(Task a : arr) {
-                writer.write(a.toString());
-                writer.write("\n");
-            }
-
-            writer.close();
-
-        } catch (Exception e){
-            System.out.print(e);
-        }
-    }
-
 }
