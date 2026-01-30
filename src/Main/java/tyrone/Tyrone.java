@@ -24,6 +24,12 @@ public class Tyrone {
     private Parser parser;
     private Ui ui = new Ui();
 
+    /**
+     * Main class for the Tyrone task management application.
+     * Handles the core logic for processing user commands and managing tasks.
+     * Supports todo, deadline, and event tasks with file-based persistence.
+     */
+
     public Tyrone(String filePath) {
         ui = new Ui();
         Parser parser = new Parser();
@@ -32,6 +38,13 @@ public class Tyrone {
 
         tasks = new TaskList();
     }
+
+    /**
+     * Constructs a Tyrone instance with the specified file path for data storage.
+     * Initializes the UI, parser, storage, and task list components.
+     *
+     * @param filePath The file path where task data should be stored.
+     */
 
     public void run(){
         ui.showWelcome();
@@ -171,6 +184,14 @@ public class Tyrone {
         }
 
     }
+
+    /**
+     * Main entry point for the Tyrone application.
+     * Creates a new Tyrone instance and starts the application loop.
+     *
+     * @param args Command line arguments (not used).
+     */
+
     public static void main(String[] args){
         new Tyrone("data/tyrone.txt").run();
     }
