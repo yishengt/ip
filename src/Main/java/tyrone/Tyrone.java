@@ -53,6 +53,13 @@ public class Tyrone {
 
                 String[] words = Parser.parse(input);
                 String command = words[0].toLowerCase();
+                String argument = words[1];
+
+
+                if (command.equalsIgnoreCase("find")){
+                    tasks.search(argument);
+                    continue;
+                }
 
                 if (command.equalsIgnoreCase("delete")) {
 
