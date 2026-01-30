@@ -1,3 +1,5 @@
+package tyrone;
+
 public class Pair<K, V> {
     private K first;
     private V second;

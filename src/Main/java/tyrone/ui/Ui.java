@@ -1,3 +1,9 @@
+package tyrone.ui;
+
+import tyrone.AsciiArt;
+import tyrone.task.Task;
+import tyrone.task.TaskList;
+
 import java.util.*;
 
 public class Ui{
