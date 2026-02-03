@@ -2,6 +2,8 @@ package tyrone.task;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class TaskList implements Iterable<Task>{
     private ArrayList<Task> arr;
@@ -15,21 +17,14 @@ public class TaskList implements Iterable<Task>{
     }
 
     public Task get(int index){
-<<<<<<< Updated upstream
-        return arr.get(index);
-
-=======
         return this.arr.get(index);
->>>>>>> Stashed changes
+
     }
 
     public void add(Task task){
         arr.add(task);
     }
 
-
-<<<<<<< Updated upstream
-=======
     /**
      * Searches for tasks that match the given search term.
      * Uses regex pattern matching to find tasks whose string representation
@@ -55,7 +50,6 @@ public class TaskList implements Iterable<Task>{
      * @return An Iterator over the tasks.
      */
 
->>>>>>> Stashed changes
     @Override
     public Iterator<Task> iterator() {
         return arr.iterator();
