@@ -31,12 +31,11 @@ public class Tyrone {
      */
 
     public Tyrone(String filePath) {
-        ui = new Ui();
-        Parser parser = new Parser();
-        storage = new Storage("data/tyrone.txt");
-        storage.load();
-
-        tasks = new TaskList();
+        this.ui = new Ui();
+        this.parser = new Parser();
+        this.storage = new Storage(filePath);
+        this.storage.load();
+        this.tasks = new TaskList();
     }
 
     /**
@@ -51,14 +50,12 @@ public class Tyrone {
         String input = "";
 
         while (!input.equalsIgnoreCase("bye")) {
-
             input = ui.readInputs();
             if (input.isEmpty()) {
                 continue;
             }
 
             try {
-
                 if (input.equalsIgnoreCase("bye")) {
                     ui.showGoodBye();
                     break;
@@ -66,6 +63,15 @@ public class Tyrone {
 
                 String[] words = Parser.parse(input);
                 String command = words[0].toLowerCase();
+<<<<<<< Updated upstream
+=======
+                String argument = words[1];
+
+                if (command.equalsIgnoreCase("find")){
+                    tasks.search(argument);
+                    continue;
+                }
+>>>>>>> Stashed changes
 
                 if (command.equalsIgnoreCase("delete")) {
 
@@ -86,7 +92,7 @@ public class Tyrone {
                     }
 
                     tasks.remove(deleteIndex - 1);
-                        ui.showTaskDeleted(deleteIndex);
+                    ui.showTaskDeleted(deleteIndex);
 
                     try{
                         storage.save(tasks);
@@ -208,16 +214,13 @@ public class Tyrone {
         }
     }
 
-
     public static Integer extractIndex(String input) {
-
         Pattern p = Pattern.compile("^(mark|unmark) (\\d+)$");
         Matcher m = p.matcher(input);
 
         if (m.matches()) {
             return Integer.parseInt(m.group(2));
         }
-
         return -1;
     }
 }
