@@ -1,5 +1,6 @@
 package tyrone;
 
+import javafx.application.Application;
 import tyrone.Parser.Parser;
 import tyrone.exception.TyroneException;
 import tyrone.storage.Storage;
@@ -56,6 +57,7 @@ public class Tyrone {
             }
 
             try {
+
                 if (input.equalsIgnoreCase("bye")) {
                     ui.showGoodBye();
                     break;
@@ -63,15 +65,24 @@ public class Tyrone {
 
                 String[] words = Parser.parse(input);
                 String command = words[0].toLowerCase();
-<<<<<<< Updated upstream
-=======
-                String argument = words[1];
 
-                if (command.equalsIgnoreCase("find")){
-                    tasks.search(argument);
+
+                if (extractIndex(input) != -1){
+                    Pattern markRegex = Pattern.compile("^(mark) (\\d+)$");
+                    Matcher matcherValue = markRegex.matcher(input);
+
+                    if (matcherValue.matches()) {
+                        this.tasks.get(extractIndex(input)-1).mark();
+                    } else {
+                        this.tasks.get(extractIndex(input)-1).unmark();
+                    }
                     continue;
                 }
->>>>>>> Stashed changes
+
+                if (command.equalsIgnoreCase("find")){
+                    tasks.search(words[1]);
+                    continue;
+                }
 
                 if (command.equalsIgnoreCase("delete")) {
 
@@ -200,6 +211,8 @@ public class Tyrone {
 
     public static void main(String[] args){
         new Tyrone("data/tyrone.txt").run();
+        Application.launch(Main.class, args);
+
     }
 
     public static boolean isValidDate(String input) {

@@ -3,7 +3,7 @@ package tyrone.Parser;
 public class Parser {
 
     public static String[] parse(String input) {
-        return input.split(" ", 2);
+        return input.split(" ");
     }
 
     public static String getCommand(String input) {
