@@ -31,8 +31,13 @@ dependencies {
 
 }
 
+javafx {
+    version = '17.0.7'
+    modules = ['javafx.controls', 'javafx.fxml']
+}
+
 application {
-    mainClass = 'tyrone.Tyrone'
+    mainClass = 'tyrone.Launcher'
 
 }
 
