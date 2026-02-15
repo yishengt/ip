@@ -7,17 +7,17 @@ public class Event extends Task {
      * An event is a type of task that has a description and a time/location when it happens.
      * Events are denoted with an [E] tag when displayed.
      */
-    private String at;
+    private String eventLoctionOrTime;
 
     /**
      * Constructs an Event with the specified description and time/location.
      *
      * @param description The description of the event task.
-     * @param at The time or location when/where the event occurs.
+     * @param eventLoctionOrTime The time or location when/where the event occurs.
      */
-    public Event(String description, String at) {
+    public Event(String description, String eventLoctionOrTime) {
         super(description);
-        this.at = at;
+        eventLoctionOrTime = eventLoctionOrTime;
     }
 
     /**
@@ -30,6 +30,6 @@ public class Event extends Task {
 
     @Override
     public String toString() {
-        return "[E]" + super.toString() + " (at: " + at + ")";
+        return "[E]" + super.toString() + " (at: " + eventLoctionOrTime + ")";
     }
 }
