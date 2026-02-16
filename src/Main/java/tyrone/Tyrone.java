@@ -22,6 +22,17 @@ import java.time.format.DateTimeParseException;
 
 public class Tyrone {
 
+    private static final int COMMAND_INDEX = 0;
+    private static final int FIRST_ARGUMENT_INDEX = 1;
+    private static final int MIN_TASK_INDEX = 1;
+    private static final int MIN_COMMAND_PARTS = 2;
+    private static final int EXPECTED_SPLIT_PARTS = 2;
+    private static final int TASK_LIST_OFFSET = 1;
+    private static final int REGEX_NUMBER_GROUP = 2;
+    private static final int INVALID_INDEX = -1;
+    private static final String MARK_ONLY_REGEX = "^(mark) (\\d+)$";
+    private static final String MARK_UNMARK_REGEX = "^(mark|unmark) (\\d+)$";
+
     private Storage storage;
     private TaskList tasks;
     private Parser parser;
@@ -67,6 +78,7 @@ public class Tyrone {
         }
     }
 
+
     /**
      * Processes a single user command.
      *
@@ -75,9 +87,10 @@ public class Tyrone {
      */
     private void processCommand(String input) throws TyroneException{
         String[] words = Parser.parse(input);
-        String command = words[0].toLowerCase();
+        String command = words[COMMAND_INDEX].toLowerCase();
 
         if (markHandler(input)){
+            ui.showTaskList(tasks);
             return;
         }
 
@@ -98,7 +111,7 @@ public class Tyrone {
             deadlineHandler(input);
             break;
         case "list":
-            listHandler(tasks);
+            ui.showTaskList(tasks);
             break;
         default:
             throw new TyroneException(AsciiArt.getDefeatedFace());
@@ -110,115 +123,105 @@ public class Tyrone {
      *
      * @param input The full command string entered by the user.
      */
-    private Boolean markHandler(String input) {
-        if (extractIndex(input) != -1) {
-            Pattern markRegex = Pattern.compile("^(mark) (\\d+)$");
-            Matcher matcherValue = markRegex.matcher(input);
-
-            if (matcherValue.matches()) {
-                this.tasks.get(extractIndex(input) - 1).mark();
-            } else {
-                this.tasks.get(extractIndex(input) - 1).unmark();
-            }
-
-            return true;
-        } else {
+    private boolean markHandler(String input) {
+        if (extractIndex(input) == INVALID_INDEX) {
             return false;
         }
+
+        Pattern markRegex = Pattern.compile(MARK_UNMARK_REGEX);
+        Matcher matcherValue = markRegex.matcher(input);
+
+        if (matcherValue.matches()) {
+            tasks.get(extractIndex(input) - TASK_LIST_OFFSET).mark();
+        } else {
+            tasks.get(extractIndex(input) - TASK_LIST_OFFSET).unmark();
+        }
+        return true;
     }
 
-
     private void findHandler(String[] words, String command){
-        if (command.equalsIgnoreCase("find")){
-            tasks.search(words[1]);
-        }
+        tasks.search(words[FIRST_ARGUMENT_INDEX]);
     }
 
     private void todoHandler(String input) throws TyroneException{
-        String[] parts = input.split(" ", 2);
+        String[] parts = input.split(" ", MIN_COMMAND_PARTS);
 
-        if (parts.length == 1) {
+        assert parts.length > 0 : "Input is not a complete argument";
+
+        if (parts.length < MIN_COMMAND_PARTS) {
             throw new TyroneException("Bruh todo what??");
         }
 
-        Todo item = new Todo(parts[1]);
+        Todo item = new Todo(parts[FIRST_ARGUMENT_INDEX]);
         tasks.add(item);
         ui.showTaskAdded(tasks, item);
         saveTask(tasks);
     }
 
     private void eventHandler(String input) throws TyroneException{
-        String[] parts = input.split(" ", 2);
+        String[] parts = input.split(" ", MIN_COMMAND_PARTS);
 
-        if (parts.length == 1) {
+        if (parts.length < MIN_COMMAND_PARTS) {
             throw new TyroneException("Bruh event what??");
         }
 
-        String[] splits = parts[1].split("/at", 2);
+        String[] eventParts = parts[FIRST_ARGUMENT_INDEX].split("/at", MIN_COMMAND_PARTS);
 
-        if (splits.length != 2) {
+        if (eventParts.length != EXPECTED_SPLIT_PARTS) {
             throw new TyroneException(AsciiArt.getQuestionMark());
         }
 
         Event itemEvent =
-                new Event(splits[0].trim(), splits[1].trim());
-
+                new Event(eventParts[COMMAND_INDEX].trim(), eventParts[FIRST_ARGUMENT_INDEX].trim());
         tasks.add(itemEvent);
         ui.showTaskAdded(tasks, itemEvent);
         saveTask(tasks);
     }
 
     private void deadlineHandler(String input) throws TyroneException{
-        String[] parts = input.split(" ", 2);
+        String[] parts = input.split(" ", MIN_COMMAND_PARTS);
 
-        if (parts[0].equalsIgnoreCase("deadline")) {
-
-            if (parts.length == 1) {
-                throw new TyroneException("Bruh deadline what??");
-            }
-
-            String[] d = parts[1].split("/by", 2);
-            LocalDate d1 = LocalDate.parse(d[1]);
-
-            if (d.length != 2 || !isValidDate(d[1].trim())) {
-                throw new TyroneException(AsciiArt.getQuestionMark());
-            }
-
-            Deadline itemDeadLine =
-                    new Deadline(d[0].trim(), d[1].trim());
-
-            tasks.add(itemDeadLine);
-            ui.showTaskAdded(tasks, itemDeadLine);
-            saveTask(tasks);
+        if (!parts[COMMAND_INDEX].equalsIgnoreCase("deadline")) {
+            return;
         }
+
+        if (parts.length < MIN_COMMAND_PARTS) {
+            throw new TyroneException("Bruh deadline what??");
+        }
+
+        String[] deadlineParts = parts[FIRST_ARGUMENT_INDEX].split("/by", MIN_COMMAND_PARTS);
+
+        if (deadlineParts.length != EXPECTED_SPLIT_PARTS || !isValidDate(deadlineParts[FIRST_ARGUMENT_INDEX].trim())) {
+            throw new TyroneException(AsciiArt.getQuestionMark());
+        }
+
+        Deadline itemDeadline =
+                new Deadline(deadlineParts[COMMAND_INDEX].trim(), deadlineParts[FIRST_ARGUMENT_INDEX].trim());
+        tasks.add(itemDeadline);
+        ui.showTaskAdded(tasks, itemDeadline);
+        saveTask(tasks);
     }
 
-    private void listHandler(TaskList tasks){
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + ". " + tasks.get(i));
+    private void deleteHandler(String[] words) throws TyroneException {
+        if (words.length != MIN_COMMAND_PARTS) {
+            throw new TyroneException(AsciiArt.getQuestionMark());
         }
-    }
 
-    private void deleteHandler(String[] words, String command) throws TyroneException{
         int deleteIndex;
 
-        if (words.length != 2) {
-                throw new TyroneException(AsciiArt.getQuestionMark());
-            }
+        try {
+            deleteIndex = Integer.parseInt(words[FIRST_ARGUMENT_INDEX]);
+        } catch (NumberFormatException e) {
+            throw new TyroneException("Delete requires a number.");
+        }
 
-            try {
-                deleteIndex = Integer.parseInt(words[1]);
-            } catch (NumberFormatException e) {
-                throw new TyroneException("Delete requires a number.");
-            }
+        if (deleteIndex < MIN_TASK_INDEX || deleteIndex > tasks.size()) {
+            throw new TyroneException("Task number out of range.");
+        }
 
-            if (deleteIndex < 1 || deleteIndex > tasks.size()) {
-                throw new TyroneException("Task number out of range.");
-            }
-
-            tasks.remove(deleteIndex - 1);
-            ui.showTaskDeleted(deleteIndex);
-            saveTask(tasks);
+        tasks.remove(deleteIndex - TASK_LIST_OFFSET);
+        ui.showTaskDeleted(deleteIndex);
+        saveTask(tasks);
     }
 
     private void saveTask(TaskList tasks){
@@ -242,13 +245,13 @@ public class Tyrone {
     }
 
     public static Integer extractIndex(String input) {
-        Pattern p = Pattern.compile("^(mark|unmark) (\\d+)$");
-        Matcher m = p.matcher(input);
+        Pattern markPattern = Pattern.compile("^(mark|unmark) (\\d+)$");
+        Matcher matcher = markPattern.matcher(input);
 
-        if (m.matches()) {
-            return Integer.parseInt(m.group(2));
+        if (matcher.matches()) {
+            return Integer.parseInt(matcher.group(REGEX_NUMBER_GROUP));
         }
-        return -1;
+        return INVALID_INDEX;
     }
 
     public String getResponse(String input) {
