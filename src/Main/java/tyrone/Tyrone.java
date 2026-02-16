@@ -36,6 +36,9 @@ public class Tyrone {
      */
 
     public Tyrone(String filePath) {
+        assert filePath != null : "File path cannot be null";
+        assert !filePath.isEmpty() : "File path cannot be empty";
+
         ui = new Ui();
         parser = new Parser();
         storage = new Storage(filePath);
@@ -76,6 +79,9 @@ public class Tyrone {
     private void processCommand(String input) throws TyroneException{
         String[] words = Parser.parse(input);
         String command = words[0].toLowerCase();
+
+        assert input != null : "Input cannot be null";
+        assert !input.isEmpty() : "Input cannot be empty";
 
         if (markHandler(input)){
             return;
