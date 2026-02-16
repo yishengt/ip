@@ -1,4 +1,4 @@
-# TYRONE Project Setup Guide 🚀
+# TYRONE Project Setup Guide
 
 This is a **greenfield Java project template** designed for building TYRONE.
 
@@ -17,7 +17,7 @@ This is a **greenfield Java project template** designed for building TYRONE.
 
 ---
 
-## 🛠 Setting Up in IntelliJ
+## Setting Up in IntelliJ
 
 ### Step-by-step Instructions
 
