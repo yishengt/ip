@@ -1,43 +1,53 @@
-# TYRONE
+# TYRONE Project Setup Guide
 
-This is a project template for a greenfield Java project. 
+This is a **greenfield Java project template** designed for building TYRONE.
 
-## Setting up in Intellij
+>  Always ensure your environment is properly configured before running the project.
 
-Prerequisites: JDK 17, update Intellij to the most recent version.
+---
 
-1. Open Intellij (if you are not in the welcome screen, click `File` > `Close Project` to close the existing project first)
-1. Open the project into Intellij as follows:
-   1. Click `Open`.
-   1. Select the project directory, and click `OK`.
-   1. If there are any further prompts, accept the defaults.
-1. Configure the project to use **JDK 17** (not other versions) as explained in [here](https://www.jetbrains.com/help/idea/sdk.html#set-up-jdk).<br>
-   In the same dialog, set the **Project language level** field to the `SDK default` option.
-1. After that, locate the `src/main/java/Duke.java` file, right-click it, and choose `Run Duke.main()` (if the code editor is showing compile errors, try restarting the IDE). If the setup is correct, you should see something like the below as the output:
-   ```
-   Hello from
-         _____                _____                    _____                   _______                   _____                    _____          
-     /\\    \\              |\\    \\                  /\\    \\                 /::\\    \\                 /\\    \\                  /\\    \\         
-    /::\\    \\             |:\\____\\                /::\\    \\               /::::\\    \\               /::\\____\\                /::\\    \\        
-    \\:::\\    \\            |::|   |               /::::\\    \\             /::::::\\    \\             /::::|   |               /::::\\    \\       
-     \\:::\\    \\           |::|   |              /::::::\\    \\           /::::::::\\    \\           /:::::|   |              /::::::\\    \\      
-      \\:::\\    \\          |::|   |             /:::/\\:::\\    \\         /:::/~~\\:::\\    \\         /::::::|   |             /:::/\\:::\\    \\     
-       \\:::\\    \\         |::|   |            /:::/__\\:::\\    \\       /:::/    \\:::\\    \\       /:::/|::|   |            /:::/__\\:::\\    \\    
-       /::::\\    \\        |::|   |           /::::\\   \\:::\\    \\     /:::/    / \\:::\\    \\     /:::/ |::|   |           /::::\\   \\:::\\    \\   
-      /::::::\\    \\       |::|___|______    /::::::\\   \\:::\\    \\   /:::/____/   \\:::\\____\\   /:::/  |::|   | _____    /::::::\\   \\:::\\    \\  
-     /:::/\\:::\\    \\      /::::::::\\    \\  /:::/\\:::\\   \\:::\\____\\ |:::|    |     |:::|    | /:::/   |::|   |/\\    \\  /:::/\\:::\\   \\:::\\    \\ 
-    /:::/  \\:::\\____\\    /::::::::::\\____\\/:::/  \\:::\\   \\:::|    ||:::|____|     |:::|    |/:: /    |::|   /::\\____\\/:::/__\\:::\\   \\:::\\____\\
-   /:::/    \\::/    /   /:::/~~~~/~~      \\::/   |::::\\  /:::|____| \\:::\\    \\   /:::/    / \\::/    /|::|  /:::/    /\\:::\\   \\:::\\   \\::/    /
-  /:::/    / \\/____/   /:::/    /          \\/____|:::::\\/:::/    /   \\:::\\    \\ /:::/    /   \\/____/ |::| /:::/    /  \\:::\\   \\:::\\   \\/____/ 
- /:::/    /           /:::/    /                 |:::::::::/    /     \\:::\\    /:::/    /            |::|/:::/    /    \\:::\\   \\:::\\    \\     
-/:::/    /           /:::/    /                  |::|\\::::/    /       \\:::\\__/:::/    /             |::::::/    /      \\:::\\   \\:::\\____\\    
-\\::/    /            \\::/    /                   |::| \\::/____/         \\::::::::/    /              |:::::/    /        \\:::\\   \\::/    /    
- \\/____/              \\/____/                    |::|  ~|                \\::::::/    /               |::::/    /          \\:::\\   \\/____/     
-                                                 |::|   |                 \\::::/    /                /:::/    /            \\:::\\    \\         
-                                                 \\::|   |                  \\::/____/                /:::/    /              \\:::\\____\\        
-                                                  \\:|   |                   ~~                      \\::/    /                \\::/    /        
-                                                   \\|___|                                            \\/____/                  \\/____/         
+##Prerequisites
 
-   ```
+- **JDK 17**
+- Latest version of **IntelliJ IDEA**
+- Basic familiarity with `git`
 
-**Warning:** Keep the `src\main\java` folder as the root folder for Java files (i.e., don't rename those folders or move Java files to another folder outside of this folder path), as this is the default location some tools (e.g., Gradle) expect to find Java files.
+~~Older JDK versions are acceptable~~ 
+**Only JDK 17 is supported.**
+
+---
+
+## Setting Up in IntelliJ
+
+### Step-by-step Instructions
+
+1. Open IntelliJ.  
+   If not on the welcome screen, click `File` → `Close Project`.
+
+2. Open the project:
+   - Click `Open`
+   - Select the project directory
+   - Click `OK`
+   - Accept default prompts
+
+3. Configure the project:
+   - Set **Project SDK** to `JDK 17`
+   - Set **Project language level** to `SDK default`
+   - Refer to the official guide:  
+     https://www.jetbrains.com/help/idea/sdk.html#set-up-jdk
+
+4. Locate `src/main/java/tyrone.java`  
+   - Right-click  
+   - Select `Run Tyrone.main()`
+
+---
+
+## Expected Output
+
+If setup is correct, you should see:
+
+```text
+Hello from
+  _____                _____
+ (ASCII ART TRUNCATED FOR BREVITY)
+
