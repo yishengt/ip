@@ -16,9 +16,12 @@ public class TaskList implements Iterable<Task>{
         return arr.size();
     }
 
-    public Task get(int index){
+    public Task getTask(int index){
         return this.arr.get(index);
+    }
 
+    public void setTasks(ArrayList<Task> tasks) {
+        this.arr = tasks;
     }
 
     public void add(Task task){
@@ -38,7 +41,7 @@ public class TaskList implements Iterable<Task>{
         for(Task tasks : this.arr){
             Matcher matcher = pattern.matcher(tasks.toString());
             if (matcher.find()) {
-                System.out.println(tasks.toString());
+                System.out.println(tasks);
             }
         }
     }
@@ -58,5 +61,4 @@ public class TaskList implements Iterable<Task>{
     public void remove(int index){
         arr.remove(index);
     }
-
 }

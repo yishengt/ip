@@ -20,6 +20,10 @@ public class Event extends Task {
         eventLoctionOrTime = eventLoctionOrTime;
     }
 
+    public String getType(){
+        return "Event";
+    }
+
     /**
      * Returns a string representation of the event task.
      * The format is "[E][status] description (at: time/location)" where status

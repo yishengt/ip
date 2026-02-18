@@ -2,12 +2,15 @@ package tyrone;
 
 import com.sun.tools.javac.Main;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import javafx.application.Application;
 import tyrone.Parser.Parser;
 import tyrone.exception.TyroneException;
 import tyrone.storage.Storage;
 import tyrone.task.Deadline;
 import tyrone.task.Event;
+import tyrone.task.Task;
 import tyrone.task.TaskList;
 import tyrone.task.Todo;
 import tyrone.ui.Ui;
@@ -105,7 +108,7 @@ public class Tyrone {
             findHandler(words, command);
             break;
         case "delete":
-            deleteHandler(words, command);
+            deleteHandler(words);
             break;
         case "todo":
             todoHandler(input);
@@ -117,6 +120,10 @@ public class Tyrone {
             deadlineHandler(input);
             break;
         case "list":
+            ui.showTaskList(tasks);
+            break;
+        case "sort":
+            sortHandler(tasks);
             ui.showTaskList(tasks);
             break;
         default:
@@ -138,9 +145,9 @@ public class Tyrone {
         Matcher matcherValue = markRegex.matcher(input);
 
         if (matcherValue.matches()) {
-            tasks.get(extractIndex(input) - TASK_LIST_OFFSET).mark();
+            tasks.getTask(extractIndex(input) - TASK_LIST_OFFSET).mark();
         } else {
-            tasks.get(extractIndex(input) - TASK_LIST_OFFSET).unmark();
+            tasks.getTask(extractIndex(input) - TASK_LIST_OFFSET).unmark();
         }
         return true;
     }
@@ -238,9 +245,39 @@ public class Tyrone {
         }
     }
 
+    /**
+     * Sorts the tasks in the given TaskList by deadline date in chronological order.
+     * <p>
+     * This method separates Deadline tasks from other task types,
+     * sorts the deadlines based on their {@code by} date (earliest first),
+     * and then combines the sorted deadlines with the remaining tasks.
+     * Tasks without deadlines retain their original relative order
+     * and are placed after the sorted deadlines.
+     *
+     * @param tasks The TaskList containing tasks to be sorted.
+     */
+    private void sortHandler(TaskList tasks){
+        ArrayList<Deadline> deadlineArrayList = new ArrayList<>();
+        ArrayList<Task> taskArrayList = new ArrayList<>();
+        ArrayList<Task> finalArrayList = new ArrayList<>();
+
+        for(int i = 0; i < tasks.size(); i++){
+            if (tasks.getTask(i) instanceof Deadline){
+                deadlineArrayList.add((Deadline) tasks.getTask(i));
+            } else {
+                taskArrayList.add(tasks.getTask(i));
+            }
+        }
+
+        deadlineArrayList.sort(Comparator.comparing(Deadline::getBy));
+        finalArrayList.addAll(deadlineArrayList);
+        finalArrayList.addAll(taskArrayList);
+        tasks.setTasks(finalArrayList);
+    }
+
     public static boolean isValidDate(String input) {
         DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                DateTimeFormatter.ofPattern("dd-MM-yyyy");
 
         try {
             LocalDate.parse(input, formatter);

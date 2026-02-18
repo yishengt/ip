@@ -1,5 +1,7 @@
 package tyrone.task;
 
+import java.util.ArrayList;
+
 public class Task {
     protected String description;
     protected boolean isDone;
@@ -7,6 +9,10 @@ public class Task {
     public Task(String description) {
         this.description = description;
         this.isDone = false;
+    }
+
+    public String getType(){
+        return "Task";
     }
 
     public void mark() {
@@ -19,6 +25,7 @@ public class Task {
 
     public boolean isDone() {
         return isDone;
+
     }
 
     protected String getStatusIcon() {
