@@ -1,0 +1,71 @@
+/* styles.css */
+
+/* Main window background */
+.anchor-pane {
+    -fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);
+}
+
+/* Scroll pane styling */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.scroll-pane > .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: transparent;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+    -fx-background-radius: 5px;
+}
+
+/* Dialog container */
+#dialogContainer {
+    -fx-background-color: transparent;
+    -fx-padding: 10px;
+    -fx-spacing: 10px;
+}
+
+/* Text field styling */
+#userInput {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20px;
+    -fx-padding: 10px 15px;
+    -fx-font-size: 14px;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 10, 0, 0, 2);
+}
+
+#userInput:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #667eea;
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
+}
+
+/* Send button styling */
+#sendButton {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 20px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 10, 0, 0, 2);
+}
+
+#sendButton:hover {
+    -fx-background-color: linear-gradient(to right, #5568d3, #6a3f8f);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+#sendButton:pressed {
+    -fx-background-color: linear-gradient(to right, #4a5bbd, #5d3580);
+    -fx-translate-y: 1px;
+}

@@ -34,7 +34,7 @@ public class Tyrone {
     private static final int REGEX_NUMBER_GROUP = 2;
     private static final int INVALID_INDEX = -1;
     private static final String MARK_ONLY_REGEX = "^(mark) (\\d+)$";
-    private static final String MARK_UNMARK_REGEX = "^(mark|unmark) (\\d+)$";
+    private static final String MARK_UNMARK_REGEX = "^(mark) (\\d+)$";
 
     private Storage storage;
     private TaskList tasks;
@@ -91,7 +91,7 @@ public class Tyrone {
      * @param input The full command string entered by the user.
      * @throws TyroneException If the command is invalid or malformed.
      */
-    private void processCommand(String input) throws TyroneException{
+    public String processCommand(String input) throws TyroneException{
         String[] words = Parser.parse(input);
         String command = words[COMMAND_INDEX].toLowerCase();
 
@@ -99,33 +99,28 @@ public class Tyrone {
         assert !input.isEmpty() : "Input cannot be empty";
 
         if (markHandler(input)){
-            ui.showTaskList(tasks);
-            return;
+            return ui.showTaskList(tasks);
         }
 
         switch(command){
         case "find":
-            findHandler(words, command);
-            break;
+            return findHandler(words, command);
         case "delete":
-            deleteHandler(words);
-            break;
+            return deleteHandler(words);
         case "todo":
             todoHandler(input);
-            break;
+            return ui.showTaskList(tasks);
         case "event":
             eventHandler(input);
-            break;
+            return ui.showTaskList(tasks);
         case "deadline":
             deadlineHandler(input);
-            break;
+            return ui.showTaskList(tasks);
         case "list":
-            ui.showTaskList(tasks);
-            break;
+            return ui.showTaskList(tasks);
         case "sort":
             sortHandler(tasks);
-            ui.showTaskList(tasks);
-            break;
+            return ui.showTaskList(tasks);
         default:
             throw new TyroneException(AsciiArt.getDefeatedFace());
         }
@@ -152,9 +147,11 @@ public class Tyrone {
         return true;
     }
 
-    private void findHandler(String[] words, String command){
-        tasks.search(words[FIRST_ARGUMENT_INDEX]);
+
+    private String findHandler(String[] words, String command){
+        return tasks.search(words[FIRST_ARGUMENT_INDEX]);
     }
+
 
     private void todoHandler(String input) throws TyroneException{
         String[] parts = input.split(" ", MIN_COMMAND_PARTS);
@@ -191,6 +188,7 @@ public class Tyrone {
         saveTask(tasks);
     }
 
+
     private void deadlineHandler(String input) throws TyroneException{
         String[] parts = input.split(" ", MIN_COMMAND_PARTS);
 
@@ -215,7 +213,8 @@ public class Tyrone {
         saveTask(tasks);
     }
 
-    private void deleteHandler(String[] words) throws TyroneException {
+
+    private String deleteHandler(String[] words) throws TyroneException {
         if (words.length != MIN_COMMAND_PARTS) {
             throw new TyroneException(AsciiArt.getQuestionMark());
         }
@@ -233,9 +232,10 @@ public class Tyrone {
         }
 
         tasks.remove(deleteIndex - TASK_LIST_OFFSET);
-        ui.showTaskDeleted(deleteIndex);
         saveTask(tasks);
+        return ui.showTaskDeleted(deleteIndex);
     }
+
 
     private void saveTask(TaskList tasks){
         try{
@@ -274,6 +274,7 @@ public class Tyrone {
         finalArrayList.addAll(taskArrayList);
         tasks.setTasks(finalArrayList);
     }
+
 
     public static boolean isValidDate(String input) {
         DateTimeFormatter formatter =

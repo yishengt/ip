@@ -36,15 +36,24 @@ public class TaskList implements Iterable<Task>{
      * @param object The search term or regex pattern to match against task descriptions.
      */
 
-    public void search(String object){
+    public String search(String object) {
+        StringBuilder sb = new StringBuilder();
         Pattern pattern = Pattern.compile(object);
-        for(Task tasks : this.arr){
-            Matcher matcher = pattern.matcher(tasks.toString());
+
+        for (Task task : this.arr) {
+            Matcher matcher = pattern.matcher(task.toString());
             if (matcher.find()) {
-                System.out.println(tasks);
+                sb.append(task.toString()).append("\n");
             }
         }
+
+        if (sb.isEmpty()) {
+            return "No matching tasks found.";
+        }
+
+        return sb.toString();
     }
+
 
     /**
      * Returns an iterator over the tasks in this list.

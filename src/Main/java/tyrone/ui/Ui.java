@@ -26,9 +26,8 @@ public class Ui{
         System.out.println("Now you have " + tasks.size() + " tasks in the list");
     }
 
-    public void showTaskDeleted(int deleteIndex){
-        System.out.println("Deleted task " + deleteIndex);
-
+    public String showTaskDeleted(int deleteIndex){
+        return ("Deleted task " + deleteIndex);
     }
 
     public void showTaskMarked(){
@@ -43,9 +42,15 @@ public class Ui{
         return scanner.nextLine().trim();
     }
 
-    public void showTaskList(TaskList taskList){
-        for (Task task : taskList){
-            System.out.println(task.toString());
+    public String showTaskList(TaskList taskList){
+        StringBuilder sb = new StringBuilder();
+        int index = 1;
+
+        for (Task task : taskList) {
+            sb.append(index).append(". ").append(task.toString()).append("\n");
+            index++;
         }
+
+        return sb.toString();
     }
 }
