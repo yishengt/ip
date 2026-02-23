@@ -23,6 +23,36 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 
+/**
+ * Main class for the Tyrone task management application.
+ *
+ * <p>Tyrone is a chatbot-based task manager that allows users to create, manage,
+ * and organize tasks including todos, deadlines, and events. It provides features
+ * for adding, deleting, marking, searching, and sorting tasks through a command-line
+ * or GUI interface.</p>
+ *
+ * <p>The application supports persistent storage, allowing tasks to be saved and
+ * loaded across sessions. It uses a simple text-based command system for user
+ * interaction.</p>
+ *
+ * <p>Supported commands:
+ * <ul>
+ *     <li>todo - Add a simple task</li>
+ *     <li>deadline - Add a task with a deadline</li>
+ *     <li>event - Add an event task</li>
+ *     <li>list - Display all tasks</li>
+ *     <li>mark/unmark - Toggle task completion status</li>
+ *     <li>delete - Remove a task</li>
+ *     <li>find - Search for tasks</li>
+ *     <li>sort - Sort deadlines by date</li>
+ * </ul>
+ * </p>
+ *
+ * @author Toh Yi Sheng
+ * @version 1.0
+ * @since 1.0
+
+ */
 public class Tyrone {
 
     private static final int COMMAND_INDEX = 0;
@@ -102,34 +132,43 @@ public class Tyrone {
             return ui.showTaskList(tasks);
         }
 
-        switch(command){
-        case "find":
-            return findHandler(words, command);
-        case "delete":
-            return deleteHandler(words);
-        case "todo":
-            todoHandler(input);
-            return ui.showTaskList(tasks);
-        case "event":
-            eventHandler(input);
-            return ui.showTaskList(tasks);
-        case "deadline":
-            deadlineHandler(input);
-            return ui.showTaskList(tasks);
-        case "list":
-            return ui.showTaskList(tasks);
-        case "sort":
-            sortHandler(tasks);
-            return ui.showTaskList(tasks);
-        default:
-            throw new TyroneException(AsciiArt.getDefeatedFace());
+        try {
+            switch (command) {
+            case "find":
+                return findHandler(words, command);
+            case "delete":
+                return deleteHandler(words);
+            case "todo":
+                todoHandler(input);
+                return ui.showTaskList(tasks);
+            case "event":
+                eventHandler(input);
+                return ui.showTaskList(tasks);
+            case "deadline":
+                deadlineHandler(input);
+                return ui.showTaskList(tasks);
+            case "list":
+                return ui.showTaskList(tasks);
+            case "sort":
+                sortHandler(tasks);
+                return ui.showTaskList(tasks);
+            default:
+                throw new TyroneException(AsciiArt.getDefeatedFace());
+            }
+        } catch (Exception e){
+            return e.getMessage();
         }
     }
 
     /**
-     * Processes a mark and unmark user commands.
+     * Handles mark and unmark commands for toggling task completion status.
      *
-     * @param input The full command string entered by the user.
+     * <p>Uses regex pattern matching to identify mark/unmark commands and extract
+     * the task index. Marks tasks as done if the command is "mark", otherwise
+     * unmarks them.</p>
+     *
+     * @param input The full command string (e.g., "mark 1" or "unmark 2")
+     * @return {@code true} if the input was a valid mark/unmark command, {@code false} otherwise
      */
     private boolean markHandler(String input) {
         if (extractIndex(input) == INVALID_INDEX) {
@@ -147,12 +186,28 @@ public class Tyrone {
         return true;
     }
 
-
+    /**
+     * Handles the find command to search for tasks containing a keyword.
+     *
+     * @param words The parsed command words array
+     * @param command The command name (expected to be "find")
+     * @return A string containing all matching tasks
+     */
     private String findHandler(String[] words, String command){
         return tasks.search(words[FIRST_ARGUMENT_INDEX]);
     }
 
-
+    /**
+     * Handles the todo command to add a simple task.
+     *
+     * <p>Creates a new {@link Todo} task with the provided description,
+     * adds it to the task list, saves the updated list, and displays
+     * a confirmation message.</p>
+     *
+     * @param input The full command string (e.g., "todo read book")
+     * @throws TyroneException If the description is missing
+     * @throws AssertionError if the input parts array is empty (when assertions are enabled)
+     */
     private void todoHandler(String input) throws TyroneException{
         String[] parts = input.split(" ", MIN_COMMAND_PARTS);
 
@@ -168,6 +223,15 @@ public class Tyrone {
         saveTask(tasks);
     }
 
+    /**
+     * Handles the event command to add an event task.
+     *
+     * <p>Creates a new {@link Event} task with the provided description and time,
+     * using the "/at" delimiter to separate them. Saves and displays the result.</p>
+     *
+     * @param input The full command string (e.g., "event meeting /at 2pm")
+     * @throws TyroneException If the description, time, or delimiter is missing
+     */
     private void eventHandler(String input) throws TyroneException{
         String[] parts = input.split(" ", MIN_COMMAND_PARTS);
 
@@ -188,7 +252,15 @@ public class Tyrone {
         saveTask(tasks);
     }
 
-
+    /**
+     * Handles the deadline command to add a deadline task.
+     *
+     * <p>Creates a new {@link Deadline} task with the provided description and date,
+     * using the "/by" delimiter. Validates the date format before creating the task.</p>
+     *
+     * @param input The full command string (e.g., "deadline homework /by 15-03-2024")
+     * @throws TyroneException If the description, date, delimiter is missing, or date format is invalid
+     */
     private void deadlineHandler(String input) throws TyroneException{
         String[] parts = input.split(" ", MIN_COMMAND_PARTS);
 
@@ -213,7 +285,14 @@ public class Tyrone {
         saveTask(tasks);
     }
 
-
+    /**
+     * Handles the delete command to remove a task from the list.
+     *
+     * @param words The parsed command words array
+     * @return A confirmation message indicating which task was deleted
+     * @throws TyroneException If the command format is invalid, the index is not a number,
+     *                         or the index is out of range
+     */
     private String deleteHandler(String[] words) throws TyroneException {
         if (words.length != MIN_COMMAND_PARTS) {
             throw new TyroneException(AsciiArt.getQuestionMark());
@@ -236,7 +315,12 @@ public class Tyrone {
         return ui.showTaskDeleted(deleteIndex);
     }
 
-
+    /**
+     * Saves the current task list to persistent storage.
+     *
+     * @param tasks The task list to be saved
+     * @throws RuntimeException If an I/O error occurs during saving
+     */
     private void saveTask(TaskList tasks){
         try{
             Storage.save(tasks);
@@ -275,7 +359,14 @@ public class Tyrone {
         tasks.setTasks(finalArrayList);
     }
 
-
+    /**
+     * Validates whether a date string matches the expected format.
+     *
+     * <p>The expected format is "dd-MM-yyyy" (e.g., "15-03-2024" for March 15, 2024).</p>
+     *
+     * @param input The date string to validate
+     * @return {@code true} if the date is valid and matches the format, {@code false} otherwise
+     */
     public static boolean isValidDate(String input) {
         DateTimeFormatter formatter =
                 DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -288,6 +379,15 @@ public class Tyrone {
         }
     }
 
+    /**
+     * Extracts the task index from mark or unmark commands.
+     *
+     * <p>Uses regex pattern matching to identify valid mark/unmark commands
+     * and extract the numeric task index.</p>
+     *
+     * @param input The command string (e.g., "mark 1" or "unmark 3")
+     * @return The task index as an integer, or {@code INVALID_INDEX} (-1) if not a valid command
+     */
     public static Integer extractIndex(String input) {
         Pattern markPattern = Pattern.compile("^(mark|unmark) (\\d+)$");
         Matcher matcher = markPattern.matcher(input);

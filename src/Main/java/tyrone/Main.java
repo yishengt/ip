@@ -25,8 +25,6 @@ public class Main extends Application {
     private Image userImage = new Image(Objects.requireNonNull(this.getClass().getResourceAsStream("/images/DaUser.jpeg")));
     private Image tyroneImage = new Image(Objects.requireNonNull(this.getClass().getResourceAsStream("/images/DaTyrone.jpeg")));
 
-
-
     @FXML
     private TextField userInput;
 
@@ -37,8 +35,6 @@ public class Main extends Application {
     public void setTyrone(Tyrone tyrone) {
         this.tyrone = tyrone;
     }
-
-
 
     @Override
     public void start(Stage stage) {

@@ -17,7 +17,6 @@ public class Ui{
         System.out.println(AsciiArt.getArt());
         System.out.println("Hello! Im Tyronne your chatbot");
         System.out.println("How can I help you :)");
-
     }
 
     public void showTaskAdded(TaskList tasks, Task item){
@@ -28,14 +27,6 @@ public class Ui{
 
     public String showTaskDeleted(int deleteIndex){
         return ("Deleted task " + deleteIndex);
-    }
-
-    public void showTaskMarked(){
-
-    }
-
-    public void showGoodBye(){
-        System.out.println("Bye. Hope to see you again soon!");
     }
 
     public String readInputs(){
